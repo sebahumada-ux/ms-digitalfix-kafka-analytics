@@ -24,6 +24,12 @@ public class ResumenService {
     private final Deque<MetricaEvento> recientes =
             new ConcurrentLinkedDeque<>();
 
+    private final EventosEnVivoService eventosEnVivo;
+
+    public ResumenService(EventosEnVivoService eventosEnVivo) {
+        this.eventosEnVivo = eventosEnVivo;
+    }
+
     public void registrar(MetricaEvento evento) {
 
         if (evento == null ||
@@ -53,6 +59,9 @@ public class ResumenService {
         while (recientes.size() > 20) {
             recientes.pollLast();
         }
+
+        // Avisar al dashboard solo después de registrar una métrica nueva.
+        eventosEnVivo.notificar(evento);
     }
 
     public Map<String, Object> resumen() {
